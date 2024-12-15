@@ -1,0 +1,85 @@
+.guard-dashboard-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .dashboard-title {
+    font-size: 36px;
+    font-weight: bold;
+    color: #3b82f6;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .section {
+    margin-bottom: 30px;
+  }
+  
+  .section-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  
+  .shift-details {
+    background: #f0f4ff;
+    padding: 10px;
+    border-radius: 8px;
+    color: #333;
+  }
+  
+  .hostel-details {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 10px;
+  }
+  
+  .student-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .student-item {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .attendance-button {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .attendance-button:hover {
+    background: #2563eb;
+  }
+  
+  .attendance-button.in-time {
+    background: #10b981;
+  }
+  
+  .attendance-button.in-time:hover {
+    background: #059669;
+  }
+  
+  .attendance-button.out-time {
+    background: #ef4444;
+  }
+  
+  .attendance-button.out-time:hover {
+    background: #dc2626;
+  }
+  
