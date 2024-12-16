@@ -1,22 +1,20 @@
 'use client';
-import { useEffect, useState } from 'react';
+
+import {useAuth} from '../../context/AuthContext';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function ProtectedRoute({ children, role }) {
+  const { auth } = useAuth();
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userRole = localStorage.getItem('role');
-    if (!token || userRole !== role) {
+    if (!auth.isAuthenticated || auth.role !== role) {
       router.push('/auth/login');
-    } else {
-      setIsAuthenticated(true);
     }
-  }, [router, role]);
+  }, [auth, role, router]);
 
-  if (!isAuthenticated) {
+  if (!auth.isAuthenticated || auth.role !== role) {
     return <p>Loading...</p>;
   }
 

@@ -1,45 +1,72 @@
 import dbConnect from '../../../lib/dbConnect';
 import User from '../../../models/User';
 import Hostel from '../../../models/Hostel';
+import jwt from 'jsonwebtoken';
 
-export default async function handler(req, res) {
-  if (req.method === 'POST') {
-    try {
-      const { hostelId, roomType } = req.body;
-      const token = req.headers.authorization?.split(' ')[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+export async function POST(req) {
+  try {
+    const { hostelId, roomType } = await req.json();
+    const token = req.headers.get('authorization')?.split(' ')[1];
 
-      await dbConnect();
-
-      const user = await User.findById(decoded.id);
-      const hostel = await Hostel.findById(hostelId);
-
-      if (!user || !hostel) {
-        return res.status(404).json({ message: 'Invalid user or hostel' });
-      }
-
-      if (user.enrolledHostel) {
-        return res.status(400).json({ message: 'User is already enrolled in a hostel' });
-      }
-
-      const room = hostel.rooms.find((r) => r.type === roomType && r.availability);
-      if (!room) {
-        return res.status(400).json({ message: 'Room not available' });
-      }
-
-      room.availability = false;
-      user.enrolledHostel = hostelId;
-
-      await user.save();
-      await hostel.save();
-
-      res.status(200).json({ message: 'Booking successful' });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Server error' });
+    if (!token) {
+      return new Response(
+        JSON.stringify({ message: 'Please log in to book a room.' }),
+        { status: 401 }
+      );
     }
-  } else {
-    res.setHeader('Allow', ['POST']);
-    res.status(405).end(`Method ${req.method} Not Allowed`);
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    await dbConnect();
+
+    const user = await User.findById(decoded.id);
+    const hostel = await Hostel.findById(hostelId);
+
+    if (!user || !hostel) {
+      return new Response(
+        JSON.stringify({ message: 'Invalid user or hostel.' }),
+        { status: 404 }
+      );
+    }
+
+    if (user.enrolledHostel) {
+      return new Response(
+        JSON.stringify({ message: 'You are already enrolled in a hostel.' }),
+        { status: 400 }
+      );
+    }
+
+    // Find an available room of the specified type
+    const room = hostel.rooms.find((r) => r.type === roomType && r.availability > 0);
+
+    if (!room) {
+      return new Response(
+        JSON.stringify({ message: 'Room not available.' }),
+        { status: 400 }
+      );
+    }
+
+    // Decrease availability by 1
+    room.availability -= 1;
+
+    // Add the student to the students array
+    hostel.students.push(user._id);
+
+    // Update the user's enrolled hostel
+    user.enrolledHostel = hostelId;
+
+    // Save changes
+    await user.save();
+    await hostel.save();
+
+    return new Response(
+      JSON.stringify({ message: 'Booking successful.', hostel }),
+      { status: 200 }
+    );
+  } catch (err) {
+    console.error('Booking Error:', err);
+    return new Response(
+      JSON.stringify({ message: 'Server error.', error: err.message }),
+      { status: 500 }
+    );
   }
 }

@@ -17,11 +17,13 @@ export default function StudentDashboard() {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
+
         if (!res.ok) {
-          throw new Error('Failed to fetch hostel details');
+          throw new Error('Failed to fetch enrolled hostel details');
         }
+
         const data = await res.json();
-        setHostel(data.hostel);
+        setHostel(data.hostel); // Set the enrolled hostel details, including photos
       } catch (error) {
         console.error('Error fetching hostel:', error);
       }
@@ -34,9 +36,11 @@ export default function StudentDashboard() {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
+
         if (!res.ok) {
           throw new Error('Failed to fetch notices');
         }
+
         const data = await res.json();
         setNotices(data.notices);
       } catch (error) {
@@ -58,9 +62,11 @@ export default function StudentDashboard() {
         },
         body: JSON.stringify({ description: complaint }),
       });
+
       if (!res.ok) {
         throw new Error('Failed to raise complaint');
       }
+
       alert('Complaint raised successfully!');
       setComplaint('');
     } catch (error) {
@@ -71,20 +77,28 @@ export default function StudentDashboard() {
   const handleUnenroll = async () => {
     try {
       const res = await fetch('/api/student/unenroll', {
-        method: 'DELETE',
+        method: 'POST',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
+  
+      const result = await res.json();
+      console.log('Unenroll API Response:', res.status, result);
+  
       if (!res.ok) {
-        throw new Error('Failed to unenroll');
+        alert(result.message || 'Failed to unenroll');
+        throw new Error(result.message || 'Failed to unenroll');
       }
+  
       alert('You have successfully unenrolled from the hostel.');
       setHostel(null);
     } catch (error) {
-      console.error('Error unenrolling:', error);
+      console.error('Error during unenrollment:', error);
+      alert(error.message || 'An error occurred while unenrolling.');
     }
   };
+  
 
   return (
     <div className="student-dashboard-container">
@@ -98,6 +112,17 @@ export default function StudentDashboard() {
             <p><strong>Name:</strong> {hostel.name}</p>
             <p><strong>Address:</strong> {hostel.address}</p>
             <p><strong>Amenities:</strong> {hostel.amenities.join(', ')}</p>
+
+            {/* Photos Section */}
+            <div className="hostel-photos">
+              <h3>Photos:</h3>
+              <div className="photos-grid">
+                {hostel.photos.map((photo, idx) => (
+                  <img key={idx} src={photo} alt={`Photo ${idx + 1}`} className="hostel-photo" />
+                ))}
+              </div>
+            </div>
+
             <button onClick={handleUnenroll} className="unenroll-button">
               Unenroll from Hostel
             </button>

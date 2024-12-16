@@ -1,54 +1,54 @@
-import dbConnect from '@/lib/dbConnect';
-import User from '@/models/User';
+import dbConnect from '../../../../lib/dbConnect';
+import User from '../../../../models/User';
+import Hostel from '../../../../models/Hostel';
+import jwt from 'jsonwebtoken';
 
-export async function POST(req) {
+export async function GET(req) {
   try {
-    await dbConnect();
-    const { userId, hostelId } = await req.json();
-
-    const user = await User.findById(userId);
-    if (!user) {
-      return new Response(JSON.stringify({ error: 'User not found' }), {
-        status: 404,
-      });
+    const token = req.headers.get('authorization')?.split(' ')[1];
+    if (!token) {
+      return new Response(
+        JSON.stringify({ message: 'Unauthorized access.' }),
+        { status: 401 }
+      );
     }
 
-    user.enrolledHostel = hostelId;
-    await user.save();
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    await dbConnect();
 
-    return new Response(JSON.stringify({ message: 'Enrolled successfully' }), {
-      status: 200,
-    });
-  } catch (error) {
-    console.error('Error enrolling student:', error);
-    return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
-      status: 500,
-    });
+    const user = await User.findById(decoded.id).populate('enrolledHostel');
+    if (!user) {
+      return new Response(
+        JSON.stringify({ message: 'User not found.' }),
+        { status: 404 }
+      );
+    }
+
+    if (!user.enrolledHostel) {
+      return new Response(
+        JSON.stringify({ message: 'No enrolled hostel found.', hostel: null }),
+        { status: 200 }
+      );
+    }
+
+    // Fetch the enrolled hostel with room details
+    const enrolledHostel = await Hostel.findById(user.enrolledHostel).lean();
+    if (!enrolledHostel) {
+      return new Response(
+        JSON.stringify({ message: 'Hostel not found.', hostel: null }),
+        { status: 404 }
+      );
+    }
+
+    return new Response(
+      JSON.stringify({ hostel: enrolledHostel }),
+      { status: 200 }
+    );
+  } catch (err) {
+    console.error('Enrollment Fetch Error:', err);
+    return new Response(
+      JSON.stringify({ message: 'Server error.', error: err.message }),
+      { status: 500 }
+    );
   }
 }
-export async function DELETE(req) {
-    try {
-      await dbConnect();
-      const { userId } = await req.json();
-  
-      const user = await User.findById(userId);
-      if (!user) {
-        return new Response(JSON.stringify({ error: 'User not found' }), {
-          status: 404,
-        });
-      }
-  
-      user.enrolledHostel = null;
-      await user.save();
-  
-      return new Response(JSON.stringify({ message: 'Unenrolled successfully' }), {
-        status: 200,
-      });
-    } catch (error) {
-      console.error('Error unenrolling student:', error);
-      return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
-        status: 500,
-      });
-    }
-  }
-  

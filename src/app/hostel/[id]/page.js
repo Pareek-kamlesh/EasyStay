@@ -8,28 +8,46 @@ export default function HostelDetails() {
   const { id } = useParams();
   const router = useRouter();
   const [hostel, setHostel] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // Check if the user is logged in by verifying the token
+    const token = localStorage.getItem('token');
+    if (token) {
+      const tokenPayload = JSON.parse(atob(token.split('.')[1])); // Decode token payload
+      if (tokenPayload.exp * 1000 > Date.now()) {
+        setIsLoggedIn(true); // Token is valid
+      } else {
+        localStorage.removeItem('token'); // Remove expired token
+        setIsLoggedIn(false);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     const fetchHostelDetails = async () => {
       try {
         const res = await fetch(`/api/hostels/${id}`);
-        console.log('API Response:', res); // Log the response
         if (!res.ok) {
           throw new Error(`Failed to fetch hostel details: ${res.statusText}`);
         }
         const data = await res.json();
-        console.log('Hostel Data:', data); // Log the fetched data
         setHostel(data);
       } catch (error) {
         console.error('Error fetching hostel details:', error);
       }
     };
-  
+
     fetchHostelDetails();
   }, [id]);
-  
 
   const handleBooking = async (roomType) => {
+    if (!isLoggedIn) {
+      alert('Please log in to book a room.');
+      router.push('/login'); // Redirect to login page
+      return;
+    }
+
     try {
       const res = await fetch('/api/book', {
         method: 'POST',
@@ -40,8 +58,11 @@ export default function HostelDetails() {
         body: JSON.stringify({ hostelId: id, roomType }),
       });
 
+      const result = await res.json();
+
       if (!res.ok) {
-        throw new Error('Failed to book the room');
+        alert(result.message || 'Failed to book the room.');
+        return;
       }
 
       alert('Booking successful! Redirecting to dashboard...');
@@ -75,10 +96,16 @@ export default function HostelDetails() {
             <h3>{room.type}</h3>
             <p>Rent: ₹{room.rent}/month</p>
             <p>Availability: {room.availability ? 'Available' : 'Not Available'}</p>
-            {room.availability && (
-              <button onClick={() => handleBooking(room.type)} className="book-button">
-                Book Now
-              </button>
+            {room.availability ? (
+              isLoggedIn ? (
+                <button onClick={() => handleBooking(room.type)} className="book-button">
+                  Book Now
+                </button>
+              ) : (
+                <p className="login-prompt">Log in to book this room</p>
+              )
+            ) : (
+              <p className="unavailable-room">Room not available</p>
             )}
           </div>
         ))}

@@ -1,9 +1,12 @@
 'use client';
+
 import { useState } from 'react';
+import { useAuth } from '../../../context/AuthContext';
 import { useRouter } from 'next/navigation';
 import '../../styles/login.css';
 
 export default function LoginPage() {
+  const { login } = useAuth();
   const router = useRouter();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
@@ -22,8 +25,10 @@ export default function LoginPage() {
         throw new Error(data.message || 'Invalid credentials');
       }
 
-      // Save the token and redirect to the appropriate dashboard
-      localStorage.setItem('token', data.token);
+      // Save the token and role in AuthContext
+      login(data.token, data.role);
+
+      // Redirect based on the user's role
       switch (data.role) {
         case 'student':
           router.push('/student/dashboard');

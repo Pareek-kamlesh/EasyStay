@@ -1,18 +1,19 @@
 const mongoose = require('mongoose');
 const { Schema, model, models } = mongoose;
 
+// Define the Room Schema
+const RoomSchema = new Schema({
+  type: { type: String, required: true }, // Room type (e.g., Single, Double)
+  rent: { type: Number, required: true }, // Monthly rent
+  availability: { type: Number, required: true, min: 0 }, // Number of available rooms
+});
+
 const HostelSchema = new Schema(
   {
     name: { type: String, required: true }, // Hostel name
     address: { type: String, required: true }, // Hostel address
     amenities: { type: [String], required: true }, // List of amenities (e.g., WiFi, Gym)
-    rooms: [
-      {
-        type: { type: String, required: true }, // Room type (e.g., Single, Double)
-        rent: { type: Number, required: true }, // Monthly rent
-        availability: { type: Boolean, default: true }, // Availability status
-      },
-    ],
+    rooms: [RoomSchema], // Use the RoomSchema here
     owner: {
       name: { type: String, required: true }, // Name of the owner
       contact: { type: String, required: true }, // Contact details of the owner

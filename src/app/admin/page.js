@@ -2,20 +2,22 @@
 
 import { useState, useEffect } from "react";
 import "../styles/adminDashboard.css";
+import { useRouter } from "next/navigation";
 
 export default function AdminDashboard() {
+  const router = useRouter();
   const [hostels, setHostels] = useState([]);
-  const [notices, setNotices] = useState([]);
-  const [newNotice, setNewNotice] = useState({ title: "", content: "" });
   const [hostelForm, setHostelForm] = useState({
     name: "",
     address: "",
     amenities: "",
-    rooms: [{ type: "", rent: 0, availability: true }],
+    rooms: [{ type: "", rent: 0, availability: 0 }], // Default availability is 0
     owner: { name: "", contact: "" },
     photos: [],
   });
   const [uploading, setUploading] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false); // Track if updating a hostel
+  const [updateHostelId, setUpdateHostelId] = useState(""); // ID of hostel being updated
 
   // Fetch all hostels
   useEffect(() => {
@@ -30,21 +32,6 @@ export default function AdminDashboard() {
     };
 
     fetchHostels();
-  }, []);
-
-  // Fetch all notices
-  useEffect(() => {
-    const fetchNotices = async () => {
-      try {
-        const res = await fetch("/api/notices");
-        const data = await res.json();
-        setNotices(data.notices);
-      } catch (error) {
-        console.error("Error fetching notices:", error);
-      }
-    };
-
-    fetchNotices();
   }, []);
 
   // Handle Photo Upload using Cloudinary
@@ -69,7 +56,7 @@ export default function AdminDashboard() {
       if (res.ok) {
         setHostelForm((prev) => ({
           ...prev,
-          photos: [...prev.photos, ...data.urls], // Append uploaded photo URLs
+          photos: data.urls, // Replace previous photos with new ones
         }));
       } else {
         console.error("Photo upload failed:", data.error);
@@ -81,47 +68,59 @@ export default function AdminDashboard() {
     }
   };
 
-  // Handle adding a new hostel
-  const handleAddHostel = async (e) => {
+  // Handle adding or updating a hostel
+  const handleHostelSubmit = async (e) => {
     e.preventDefault();
 
     // Validate room data
     for (const room of hostelForm.rooms) {
-      if (!room.type || room.rent <= 0) {
-        alert("Please fill in valid room details.");
+      if (!room.type || room.rent <= 0 || room.availability < 0) {
+        alert("Please fill in valid room details (positive rent and availability).");
         return;
       }
     }
 
+    const endpoint = isUpdating ? `/api/hostels/${updateHostelId}` : "/api/hostels";
+    const method = isUpdating ? "PUT" : "POST";
+
     try {
-      const res = await fetch("/api/hostels", {
-        method: "POST",
+      const res = await fetch(endpoint, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: hostelForm.name,
-          address: hostelForm.address,
+          ...hostelForm,
           amenities: hostelForm.amenities.split(","),
-          rooms: hostelForm.rooms,
-          owner: hostelForm.owner,
-          photos: hostelForm.photos, // Ensure Cloudinary URLs are valid
         }),
       });
 
       if (res.ok) {
-        const newHostel = await res.json();
-        alert("Hostel added successfully!");
-        setHostels((prev) => [...prev, newHostel]);
+        const updatedHostel = await res.json();
+        if (isUpdating) {
+          setHostels((prev) =>
+            prev.map((hostel) =>
+              hostel._id === updateHostelId ? updatedHostel : hostel
+            )
+          );
+          alert("Hostel updated successfully!");
+        } else {
+          setHostels((prev) => [...prev, updatedHostel]);
+          alert("Hostel added successfully!");
+        }
+
+        // Reset form
         setHostelForm({
           name: "",
           address: "",
           amenities: "",
-          rooms: [{ type: "", rent: 0, availability: true }],
+          rooms: [{ type: "", rent: 0, availability: 0 }], // Reset availability to 0
           owner: { name: "", contact: "" },
           photos: [],
         });
+        setIsUpdating(false);
+        setUpdateHostelId("");
       } else {
         const { error } = await res.json();
-        alert(`Error adding hostel: ${error}`);
+        alert(`Error: ${error}`);
       }
     } catch (error) {
       console.error("Unexpected error:", error);
@@ -129,38 +128,48 @@ export default function AdminDashboard() {
     }
   };
 
-  // Handle creating a new notice
-  const handleCreateNotice = async () => {
+  // Handle delete hostel
+  const handleDeleteHostel = async (id) => {
+    if (!confirm("Are you sure you want to delete this hostel?")) return;
+
     try {
-      const res = await fetch("/api/notices", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ...newNotice, createdBy: "admin_id" }), // Replace 'admin_id' dynamically
+      const res = await fetch(`/api/hostels/${id}`, {
+        method: "DELETE",
       });
 
-      if (!res.ok) {
-        throw new Error("Failed to create notice");
+      if (res.ok) {
+        setHostels((prev) => prev.filter((hostel) => hostel._id !== id));
+        alert("Hostel deleted successfully!");
+      } else {
+        alert("Failed to delete hostel.");
       }
-
-      const notice = await res.json();
-      setNotices((prev) => [notice, ...prev]);
-      setNewNotice({ title: "", content: "" });
-      alert("Notice created successfully!");
     } catch (error) {
-      console.error("Error creating notice:", error);
+      console.error("Error deleting hostel:", error);
     }
+  };
+
+  // Handle edit button click
+  const handleEditHostel = (hostel) => {
+    setIsUpdating(true);
+    setUpdateHostelId(hostel._id);
+    setHostelForm({
+      name: hostel.name,
+      address: hostel.address,
+      amenities: hostel.amenities.join(","),
+      rooms: hostel.rooms,
+      owner: hostel.owner,
+      photos: [], // Clear photos for new uploads
+    });
   };
 
   return (
     <div className="admin-dashboard">
       <h1 className="dashboard-title">Admin Dashboard</h1>
 
-      {/* Add Hostel Form */}
+      {/* Add or Update Hostel Form */}
       <div className="section">
-        <h2>Add New Hostel</h2>
-        <form onSubmit={handleAddHostel} className="hostel-form">
+        <h2>{isUpdating ? "Update Hostel" : "Add New Hostel"}</h2>
+        <form onSubmit={handleHostelSubmit} className="hostel-form">
           <input
             type="text"
             placeholder="Hostel Name"
@@ -239,21 +248,17 @@ export default function AdminDashboard() {
                 }}
                 required
               />
-              <label>
-                Availability:
-                <select
-                  value={room.availability ? "Available" : "Not Available"}
-                  onChange={(e) => {
-                    const updatedRooms = [...hostelForm.rooms];
-                    updatedRooms[index].availability =
-                      e.target.value === "Available";
-                    setHostelForm({ ...hostelForm, rooms: updatedRooms });
-                  }}
-                >
-                  <option value="Available">Available</option>
-                  <option value="Not Available">Not Available</option>
-                </select>
-              </label>
+              <input
+                type="number"
+                placeholder="Availability"
+                value={room.availability}
+                onChange={(e) => {
+                  const updatedRooms = [...hostelForm.rooms];
+                  updatedRooms[index].availability = Math.max(0, Number(e.target.value)); // Ensure availability is non-negative
+                  setHostelForm({ ...hostelForm, rooms: updatedRooms });
+                }}
+                required
+              />
               <button
                 type="button"
                 onClick={() => {
@@ -271,7 +276,7 @@ export default function AdminDashboard() {
           <button
             type="button"
             onClick={() => {
-              const newRoom = { type: "", rent: 0, availability: true };
+              const newRoom = { type: "", rent: 0, availability: 0 };
               setHostelForm({
                 ...hostelForm,
                 rooms: [...hostelForm.rooms, newRoom],
@@ -289,12 +294,34 @@ export default function AdminDashboard() {
             onChange={handlePhotoUpload}
           />
           {uploading && <p>Uploading photos...</p>}
-          <button type="submit">Add Hostel</button>
+          <button type="submit">{isUpdating ? "Update Hostel" : "Add Hostel"}</button>
         </form>
       </div>
 
-      {/* Other Sections (Notices, List of Hostels) */}
-      {/* Same as original */}
+      {/* Hostels List */}
+      <div className="section">
+        <h2>Manage Hostels</h2>
+        <div className="hostel-cards">
+          {hostels.map((hostel) => (
+            <div key={hostel._id} className="hostel-card">
+              <h3>{hostel.name}</h3>
+              <p>{hostel.address}</p>
+              <p>Amenities: {hostel.amenities.join(", ")}</p>
+              <div className="action-buttons">
+                <button onClick={() => handleEditHostel(hostel)} className="action-button">
+                  Update
+                </button>
+                <button
+                  onClick={() => handleDeleteHostel(hostel._id)}
+                  className="delete-button"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,78 +1,135 @@
 .student-dashboard-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-  }
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+  background: #f5f7fa;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-title {
+  font-size: 36px;
+  font-weight: bold;
+  color: #3b82f6;
+  text-align: center;
+  margin-bottom: 30px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.section {
+  margin-bottom: 30px;
+  padding: 15px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 15px;
+  border-left: 4px solid #3b82f6;
+  padding-left: 10px;
+}
+
+.hostel-details {
+  background: #f9f9f9;
+  color: #1f2937;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 15px;
+}
+
+.hostel-photos {
+  margin-top: 15px;
+}
+
+.photos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.hostel-photo {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hostel-photo:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.notice-list {
+  list-style: none;
   
-  .dashboard-title {
-    font-size: 36px;
-    font-weight: bold;
-    color: #3b82f6;
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  .section {
-    margin-bottom: 30px;
-  }
-  
-  .section-title {
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 10px;
-  }
-  
-  .hostel-details {
-    background: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 10px;
-  }
-  
-  .notice-list {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .notice-item {
-    background: #fff8dc;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 10px;
-  }
-  
-  .complaint-input {
-    width: 100%;
-    height: 100px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    margin-bottom: 10px;
-  }
-  
-  .complaint-button,
-  .unenroll-button,
-  .payment-button {
-    background: #3b82f6;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .complaint-button:hover,
-  .unenroll-button:hover,
-  .payment-button:hover {
-    background: #2563eb;
-  }
-  
-  .payment-status {
-    font-size: 16px;
-    font-weight: bold;
-    color: #10b981;
-  }
-  
+  padding: 0;
+}
+
+.notice-item {
+  background: #fff8dc;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.complaint-input {
+  width: 100%;
+  height: 100px;
+  padding: 15px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+  margin-bottom: 15px;
+  font-size: 16px;
+  resize: none;
+}
+
+.complaint-button,
+.unenroll-button,
+.payment-button {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.complaint-button:hover,
+.unenroll-button:hover,
+.payment-button:hover {
+  background: #2563eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.payment-status {
+  font-size: 16px;
+  font-weight: bold;
+  color: #10b981;
+}
+
+.unenroll-button {
+  margin-top: 15px;
+  display: block;
+  width: 100%;
+}
+
+.loading {
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: #6b7280;
+}
