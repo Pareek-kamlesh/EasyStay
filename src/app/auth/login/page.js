@@ -1,15 +1,37 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { useRouter } from 'next/navigation';
 import '../../styles/login.css';
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { auth, login } = useAuth();
   const router = useRouter();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (auth.isAuthenticated) {
+      switch (auth.role) {
+        case 'student':
+          router.push('/student/dashboard');
+          break;
+        case 'admin':
+          router.push('/admin');
+          break;
+        case 'guard':
+          router.push('/guard');
+          break;
+        case 'maintenance':
+          router.push('/maintenance');
+          break;
+        default:
+          router.push('/');
+      }
+    }
+  }, [auth, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

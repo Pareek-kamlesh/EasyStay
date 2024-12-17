@@ -1,19 +1,43 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useAuth } from '../../../context/AuthContext';
 import { useRouter } from 'next/navigation';
 import '../../styles/register.css';
 
 export default function RegisterPage() {
+  const { auth } = useAuth();
   const router = useRouter();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    role: 'student', // Default role; can be modified based on requirements
+    role: 'student', // Default role
   });
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (auth.isAuthenticated) {
+      switch (auth.role) {
+        case 'student':
+          router.push('/student/dashboard');
+          break;
+        case 'admin':
+          router.push('/admin');
+          break;
+        case 'guard':
+          router.push('/guard');
+          break;
+        case 'maintenance':
+          router.push('/maintenance');
+          break;
+        default:
+          router.push('/');
+      }
+    }
+  }, [auth, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,8 +56,8 @@ export default function RegisterPage() {
 
       setSuccessMessage('Registration successful! Redirecting to login...');
       setTimeout(() => {
-        router.push('/auth/login'); // Redirect to the login page
-      }, 2000); // Delay for 2 seconds to display the success message
+        router.push('/auth/login');
+      }, 2000);
     } catch (err) {
       console.error(err);
       setError(err.message);

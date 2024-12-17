@@ -9,6 +9,8 @@ export default function Navbar() {
   const { auth, logout } = useAuth();
   const router = useRouter();
 
+  
+
   const handleLogout = () => {
     logout();
     router.push('/'); // Redirect to the homepage after logout

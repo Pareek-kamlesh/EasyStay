@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import '../styles/maintenanceDashboard.css';
+import ProtectedRoute from '../components/ProtectedRoute';
 
 export default function MaintenanceDashboard() {
   const [hostels, setHostels] = useState([]);
@@ -103,6 +104,7 @@ export default function MaintenanceDashboard() {
   };
 
   return (
+    <ProtectedRoute allowedRoles={['maintenance']}>
     <div className="maintenance-dashboard-container">
       <h1 className="dashboard-title">Maintenance Dashboard</h1>
 
@@ -161,5 +163,6 @@ export default function MaintenanceDashboard() {
         </button>
       </div>
     </div>
+    </ProtectedRoute>
   );
 }

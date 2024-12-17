@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import "../styles/adminDashboard.css";
 import { useRouter } from "next/navigation";
+import ProtectedRoute from "../components/ProtectedRoute";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -163,6 +164,7 @@ export default function AdminDashboard() {
   };
 
   return (
+    <ProtectedRoute allowedRoles={['admin']}>
     <div className="admin-dashboard">
       <h1 className="dashboard-title">Admin Dashboard</h1>
 
@@ -323,5 +325,6 @@ export default function AdminDashboard() {
         </div>
       </div>
     </div>
+    </ProtectedRoute>
   );
 }

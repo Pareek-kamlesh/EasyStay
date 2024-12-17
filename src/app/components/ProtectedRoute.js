@@ -1,21 +1,27 @@
 'use client';
 
-import {useAuth} from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-export default function ProtectedRoute({ children, role }) {
+export default function ProtectedRoute({ children, allowedRoles }) {
   const { auth } = useAuth();
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!auth.isAuthenticated || auth.role !== role) {
+    // Redirect if not authenticated or role is not allowed
+    if (!auth.isAuthenticated) {
       router.push('/auth/login');
+    } else if (!allowedRoles.includes(auth.role)) {
+      router.push('/403'); // Forbidden page for unauthorized roles
+    } else {
+      setLoading(false); // Allow rendering of children
     }
-  }, [auth, role, router]);
+  }, [auth, router, allowedRoles]);
 
-  if (!auth.isAuthenticated || auth.role !== role) {
-    return <p>Loading...</p>;
+  if (loading) {
+    return <p>Loading...</p>; // Show loading state while verifying
   }
 
   return children;

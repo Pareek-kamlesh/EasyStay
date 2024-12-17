@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import '../styles/guardDashboard.css';
+import ProtectedRoute from '../components/ProtectedRoute';
 
 export default function GuardDashboard() {
   const [hostel, setHostel] = useState(null);
@@ -52,6 +53,7 @@ export default function GuardDashboard() {
   };
 
   return (
+    <ProtectedRoute allowedRoles={['guard']}>
     <div className="guard-dashboard-container">
       <h1 className="dashboard-title">Guard Dashboard</h1>
 
@@ -106,5 +108,6 @@ export default function GuardDashboard() {
         )}
       </div>
     </div>
+    </ProtectedRoute>
   );
 }
