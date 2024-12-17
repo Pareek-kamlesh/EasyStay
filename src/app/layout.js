@@ -10,11 +10,13 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <AuthProvider>
-          <Navbar />
-          <main>{children}</main>
-          <footer className="footer">
-            <p>© 2024 EasyStay. All rights reserved.</p>
-          </footer>
+          <div className="layout-container">
+            <Navbar />
+            <main className="content">{children}</main>
+            <footer className="footer">
+              <p>© 2024 EasyStay. All rights reserved.</p>
+            </footer>
+          </div>
         </AuthProvider>
       </body>
     </html>

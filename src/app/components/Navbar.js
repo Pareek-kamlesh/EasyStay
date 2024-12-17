@@ -25,9 +25,9 @@ export default function Navbar() {
           {auth.isAuthenticated ? (
             <>
               {auth.role === 'student' && <Link href="/student/dashboard">Student Dashboard</Link>}
-              {auth.role === 'admin' && <Link href="/admin/dashboard">Admin Dashboard</Link>}
-              {auth.role === 'guard' && <Link href="/guard/dashboard">Guard Dashboard</Link>}
-              {auth.role === 'maintenance' && <Link href="/maintenance/dashboard">Maintenance Dashboard</Link>}
+              {auth.role === 'admin' && <Link href="/admin">Admin Dashboard</Link>}
+              {auth.role === 'guard' && <Link href="/guard">Guard Dashboard</Link>}
+              {auth.role === 'maintenance' && <Link href="/maintenance">Maintenance Dashboard</Link>}
               <button className="logout-button" onClick={handleLogout}>
                 Logout
               </button>

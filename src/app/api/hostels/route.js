@@ -32,13 +32,14 @@ export async function POST(req) {
 
     // Validate each room
     for (const room of rooms) {
-      if (!room.type || typeof room.rent !== "number" || typeof room.availability !== "boolean") {
+      if (!room.type || typeof room.rent !== "number" || typeof room.availability !== "number") {
         console.error("Validation Error: Room data is invalid");
         return new Response(JSON.stringify({ error: "Validation Error: Room data is invalid" }), {
           status: 400,
         });
       }
     }
+    
 
     // Create a new hostel
     const newHostel = await Hostel.create({
