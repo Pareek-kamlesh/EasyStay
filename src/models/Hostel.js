@@ -1,5 +1,4 @@
-const mongoose = require('mongoose');
-const { Schema, model, models } = mongoose;
+import mongoose, { Schema, model, models } from "mongoose";
 
 // Define the Room Schema
 const RoomSchema = new Schema({
@@ -8,6 +7,7 @@ const RoomSchema = new Schema({
   availability: { type: Number, required: true, min: 0 }, // Number of available rooms
 });
 
+// Define the Hostel Schema
 const HostelSchema = new Schema(
   {
     name: { type: String, required: true }, // Hostel name
@@ -19,13 +19,13 @@ const HostelSchema = new Schema(
       contact: { type: String, required: true }, // Contact details of the owner
     },
     photos: { type: [String], default: [] }, // Array of photo URLs
-    notices: [{ type: Schema.Types.ObjectId, ref: 'Notice' }], // Reference to notices
-    students: [{ type: Schema.Types.ObjectId, ref: 'User' }], // Students enrolled in the hostel
-    maintenance: [{ type: Schema.Types.ObjectId, ref: 'User' }], // Assigned maintenance personnel
-    guards: [{ type: Schema.Types.ObjectId, ref: 'User' }], // Assigned guards
+    notices: [{ type: Schema.Types.ObjectId, ref: "Notice" }], // Reference to notices
+    students: [{ type: Schema.Types.ObjectId, ref: "User" }], // Students enrolled in the hostel
+    maintenance: [{ type: Schema.Types.ObjectId, ref: "User" }], // Assigned maintenance personnel
+    guards: [{ type: Schema.Types.ObjectId, ref: "User" }], // Assigned guards
   },
   { timestamps: true } // Automatically adds createdAt and updatedAt fields
 );
 
-const Hostel = models.Hostel || model('Hostel', HostelSchema);
-module.exports = Hostel;
+const Hostel = models.Hostel || model("Hostel", HostelSchema);
+export default Hostel;

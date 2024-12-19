@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import "../../styles/studentDashboard.css";
+import { useRouter } from "next/navigation";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
 
 export default function StudentDashboard() {
@@ -9,6 +10,7 @@ export default function StudentDashboard() {
   const [notices, setNotices] = useState([]);
   const [complaint, setComplaint] = useState("");
   const [paymentStatus, setPaymentStatus] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     const fetchEnrolledHostel = async () => {
@@ -22,9 +24,13 @@ export default function StudentDashboard() {
         if (!res.ok) {
           throw new Error("Failed to fetch enrolled hostel details");
         }
-
         const data = await res.json();
-        setHostel(data.hostel); // Set the enrolled hostel details, including photos
+        if (!data.hostel) {
+          alert("You need to enroll in a hostel to access the Student Dashboard.");
+          router.push("/home"); // Redirect to enrollment page
+        } else {
+          setHostel(data.hostel); // Set the enrolled hostel details
+        }
       } catch (error) {
         console.error("Error fetching hostel:", error);
       }
@@ -43,9 +49,10 @@ export default function StudentDashboard() {
         }
 
         const data = await res.json();
-        setNotices(data.notices);
+        setNotices(data || []); // Fallback to an empty array if no data
       } catch (error) {
         console.error("Error fetching notices:", error);
+        setNotices([]); // Set an empty array if the request fails
       }
     };
 
@@ -54,6 +61,11 @@ export default function StudentDashboard() {
   }, []);
 
   const handleRaiseComplaint = async () => {
+    if (!hostel) {
+      alert("You must be enrolled in a hostel to raise a complaint.");
+      return;
+    }
+
     try {
       const res = await fetch("/api/student/complaints", {
         method: "POST",
@@ -61,7 +73,10 @@ export default function StudentDashboard() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify({ description: complaint }),
+        body: JSON.stringify({
+          description: complaint,
+          hostelId: hostel._id, // Explicitly send the hostel ID
+        }),
       });
 
       if (!res.ok) {
@@ -72,6 +87,7 @@ export default function StudentDashboard() {
       setComplaint("");
     } catch (error) {
       console.error("Error raising complaint:", error);
+      alert("Error raising complaint. Please try again.");
     }
   };
 

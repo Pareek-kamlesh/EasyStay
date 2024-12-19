@@ -4,9 +4,11 @@ const UserSchema = new Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  role: { type: String, enum: ['student', 'admin', 'guard', 'maintenance'], required: true },
-  enrolledHostel: { type: mongoose.Schema.Types.ObjectId, ref: 'Hostel', default: null },
+  role: { type: String, enum: ["student", "admin", "guard", "maintenance"], required: true },
+  enrolledHostel: { type: mongoose.Schema.Types.ObjectId, ref: "Hostel", default: null }, // For students
+  hostels: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Hostel" }], default: [] }, // For maintainers
 });
 
-const User = models.User || model('User', UserSchema);
+const User = models.User || model("User", UserSchema);
 export default User;
+

@@ -1,5 +1,6 @@
 import dbConnect from '@/lib/dbConnect';
 import Hostel from '@/models/Hostel';
+import User from '@/models/User';
 
 export async function GET(req, { params }) {
   try {

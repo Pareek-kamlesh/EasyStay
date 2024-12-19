@@ -75,7 +75,7 @@
 }
 
 .notice-item {
-  background: #fff8dc;
+  background: #111111;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   padding: 15px;
@@ -87,9 +87,9 @@
   width: 100%;
   height: 100px;
   padding: 15px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #2a3d63;
   border-radius: 8px;
-  background: #f9fafb;
+  background: #0f0c3f;
   margin-bottom: 15px;
   font-size: 16px;
   resize: none;
